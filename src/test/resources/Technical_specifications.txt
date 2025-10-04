@@ -1,0 +1,53 @@
+создать тестовый проект Java с названием autotestting, использующий Spring Boot, файл настроек application.yml, Testcontainers, JUnit5, содержащий:
+
+1. Класс Param, используя Spring Boot и Environment реализовывает:
+а) метод getProperty получающий произвольный параметр из файла настроек application.yml.
+б) объет получающий список всех длинных имен топиков и количество из сопоставления коротких и длинных имен в файле настроек application.yml.
+
+2. Тестовый класс с именем ApplyTaskManagerBase.java: чистый JUnit5, без использования аннотаций и библиотек Spring Boot и Spring, родительский базовый класс для класса ApplyTaskManagerTest.java, который:
+а) содержит объявление контейнеров Apache Kafka и PostgresSQL
+б) в методе помеченном аннотацией @BeforeAll запускает контейнер Apache Kafka, и создает топики используя объкт созданный в Класс Param со списком топиков, в Apache Kafka  используя клиентскую библиотеку Apache Kafka (Java API)
+в) в методе помеченном аннотацией @BeforeEach запускает контейнер PostgresSQL
+г) в методе помеченном аннотацией @AfterEach остановить контейнер PostgresSQL
+д) в методе помеченном аннотацией @AfterAll остановить контейнер Apache Kafka
+е) с помощью класса Param получает значение параметра из application.eml.
+
+3. Тестовый класс с именем ApplyTaskManagerTest.java: чистый JUnit5, без использования аннотаций и библиотек Spring Boot и Spring, с одним тестовым методом который наследуется от класса ApplyTaskManagerTest.java:
+а)
+б)
+в) делает SQL запрос select в контейнер с БД,
+г) выводит в лог результат полученного SQL запросом,
+д) отправляет в топик по краткому наименованию "topic1" сообщение String "Hello world!!! OK 1",
+е) консьюмером читает сообщение из kafka,
+ж) выводит в лог прочитанное сообщение из kafka,
+з) выводит в лог значение параметра из application.eml полученного с помощью класса Param.
+
+4. файл настроек application.yml содержит:
+а) пары краткого и полного наименования топиков, количество пар может быть произвольным:
+	topic1: topic-test-1
+	topic2: topic-test-2
+	topic3: topic-test-3
+	topic4: topic-test-4
+б) параметр some.config.key: some-value-from-yml
+
+
+
+создать public List<String> getTopicNames() который создает список из элементов "topic-test-1", "topic-test-2", "topic-test-3" и "topic-test-4"
+
+git init
+
+# Добавляем ссылку на удалённый репозиторий
+git remote add origin https://github.com/Legioner1651/autotesting.git
+git remote add origin git@github.com:Legioner1651/autotesting.git
+
+# Стягиваем последний commit (например, если были изменения)
+git pull origin main --allow-unrelated-histories
+
+# Копируем содержимое своего проекта в репозиторий
+git add .
+
+# Зафиксируем изменения
+git commit -m "Загрузка готового проекта"
+
+# Отправляем код на сервер
+git push -u origin master

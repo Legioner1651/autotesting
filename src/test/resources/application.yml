@@ -1,0 +1,13 @@
+# Параметры приложения
+some.config.key: some-value-from-yml
+
+# Краткое наименование топиков и полное название топиков для Kafka
+topics:
+  topic1: topic-test-1
+  topic2: topic-test-2
+  topic3: topic-test-3
+  topic4: topic-test-4
+
+spring:
+  profiles:
+    active: test
