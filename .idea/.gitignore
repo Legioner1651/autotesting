@@ -7,5 +7,7 @@ jarRepositories.xml
 /misc.xml
 ./vcs.xml
 
+uiDesigner.xml
+
 codeStyles/codeStyleConfig.xml
 codeStyles/Project.xml

@@ -16,6 +16,7 @@ target/
 .idea/misc.xml
 .idea/encodings.xml
 .idea/vcs.xml
+allure-results/
 
 ### Eclipse ###
 .apt_generated
