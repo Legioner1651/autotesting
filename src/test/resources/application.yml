@@ -1,7 +1,13 @@
 # Параметры приложения
-some.config.key: some-value-from-yml
+some:
+  config:
+    key1: some-value-from-yml1
+    key2: some-value-from-yml2
+    key3: some-value-from-yml3
+    key4: some-value-from-yml4
+    key5: some-value-from-yml5
 
-# Краткое наименование топиков и полное название топиков для Kafka
+# Краткое наименование топиков
 topics:
   topic1: topic-test-1
   topic2: topic-test-2

@@ -1,0 +1,60 @@
+Структура проекта:
+    <groupId>ru.ruslan</groupId>
+    <artifactId>autotesting</artifactId>
+
+Нужно создать тестовый проект Java с названием "autotestting", использующий
+    Spring Boot, с файлами настроек application.yml,
+    JUnit5,
+    содержащий обязательные классы:
+
+1. Класс Param, использующий Spring Boot и Environment, использует полноценный Spring Boot контекст, реализует статические методы, которые могут использовать в простые JUnit классы без Spring:
+а) статический метод getProperty получающий произвольный параметр из файла настроек application.yml.
+б) статический метод getTopicNames() получающий список всех длинных имен топиков в файле настроек application.yml, их количество может быть произвольным.
+в) статический метод getTopicsizes() получающий количество из сопоставления коротких и длинных имен топиков в файле настроек application.yml.
+г) статический метод getEnv() получающий значение переменной окружения по названию переменной указанному в аргументах.
+
+2. Тестовый класс с именем ApplyTaskManagerTest.java:
+    чистый JUnit5,
+    без использования аннотаций и библиотек Spring Boot и Spring,
+    содержит одним тестовым метод.
+а) с помощью класса Param.getProperty() в тестовом методе получает параметр some.config.key1 и выводит на печать
+б) получает env "SSH_AUTH_SOCK" и выводим на печать
+
+3. файл настроек application.yml:
+# Параметры приложения
+some:
+  config:
+    key1: some-value-from-yml1
+    key2: some-value-from-yml2
+    key3: some-value-from-yml3
+    key4: some-value-from-yml4
+    key5: some-value-from-yml5
+
+# Краткое наименование топиков
+topics:
+  topic1: topic-test-1
+  topic2: topic-test-2
+  topic3: topic-test-3
+  topic4: topic-test-4
+
+spring:
+  profiles:
+    active: test
+
+4. Можно добавить необходимые классы для Param, чтобы он мог использовать полноценный Spring Boot контекст.
+
+
+
+создать public List<String> getTopicNames() который создает список из элементов "topic-test-1", "topic-test-2", "topic-test-3" и "topic-test-4"
+
+git init
+
+# Добавляем ссылку на удалённый репозиторий
+git remote add origin git@github.com:Legioner1651/autotesting.git
+
+# Отправляем код на сервер
+git push -u origin master
+
+feature/check environment and parameters
+
+Классы GeneralMethods, ApplyTaskManagerBase и ApplyTaskManagerTest, не должны использовать аннотаций и библиотек Spring Boot и Spring
