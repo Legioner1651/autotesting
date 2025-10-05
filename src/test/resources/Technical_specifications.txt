@@ -37,17 +37,9 @@
 git init
 
 # Добавляем ссылку на удалённый репозиторий
-git remote add origin https://github.com/Legioner1651/autotesting.git
 git remote add origin git@github.com:Legioner1651/autotesting.git
-
-# Стягиваем последний commit (например, если были изменения)
-git pull origin main --allow-unrelated-histories
-
-# Копируем содержимое своего проекта в репозиторий
-git add .
-
-# Зафиксируем изменения
-git commit -m "Загрузка готового проекта"
 
 # Отправляем код на сервер
 git push -u origin master
+
+feature/check environment and parameters
