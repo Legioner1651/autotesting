@@ -2,8 +2,10 @@
 /shelf/
 /workspace.xml
 compiler.xml
-encodings.xml
+/encodings.xml
 jarRepositories.xml
-misc.xml
-vcs.xml
-workspace.xml
+/misc.xml
+./vcs.xml
+
+codeStyles/codeStyleConfig.xml
+codeStyles/Project.xml
