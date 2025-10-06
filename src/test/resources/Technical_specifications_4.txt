@@ -1,0 +1,134 @@
+--------------------------------------------------------------------------------------------------------------------------------------------
+package ru.ruslan.autotesting;
+
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
+
+@Configuration
+@Import({Param.class})
+public class AppConfig {
+}
+--------------------------------------------------------------------------------------------------------------------------------------------
+package ru.ruslan.autotesting;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
+import org.springframework.stereotype.Component;
+
+@Component
+public class Param {
+
+    private final Environment environment;
+
+    @Autowired
+    public Param(Environment environment) {
+        this.environment = environment;
+    }
+
+    public String getProperty(String propertyName) {
+        return environment.getProperty(propertyName);
+    }
+
+    public String getEnv(String variableName) {
+        return System.getenv(variableName);
+    }
+}
+--------------------------------------------------------------------------------------------------------------------------------------------
+package ru.ruslan.autotesting;
+
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.TestInstance;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+
+@SpringBootTest(classes = AppConfig.class)
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+public class ApplyTaskManagerBase extends AbstractGeneral {
+
+    @Autowired
+    private Param param; // Внедрение через Spring
+
+    @BeforeAll
+    public static void beforeAll() {
+        System.out.println("----- *** Код метода beforeAll() начал исполняться *** -----");
+        String value = param.getProperty("some.config.key2");
+//        System.out.println("some.config.key2: " + value);
+        String env = param.getEnv("LC_MONETARY");
+        System.out.println("LC_MONETARY: " + env);
+        System.out.println("----- *** Код метода beforeAll() завершился *** -----");
+    }
+
+
+    public void printSomeConfigKey2() {
+        String value = param.getProperty("some.config.key2");
+        System.out.println("some.config.key2: " + value);
+    }
+
+    public void printEnvLC_MONETARY() {
+        String env = param.getEnv("LC_MONETARY");
+        System.out.println("LC_MONETARY: " + env);
+    }
+}
+--------------------------------------------------------------------------------------------------------------------------------------------
+package ru.ruslan.autotesting;
+
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+
+@SpringBootTest(classes = AppConfig.class)
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+public class ApplyTaskManagerTest extends ApplyTaskManagerBase {
+
+    @Autowired
+    private Param param;
+
+    @Test
+    void testPropertiesAndEnvironment() {
+        System.out.println("===== Start @Test =====");
+        // Используем статический метод для получения свойства из файла настроек
+        String ymlValue = param.getProperty("some.config.key1");
+        System.out.println("Значение из YML: " + ymlValue);
+
+        // Используем статический метод для получения переменной окружения
+        String sshAuthSock = param.getEnv("USERNAME");
+        System.out.println("Переменная окружения USERNAME: " + sshAuthSock);
+        System.out.println("===== End @Test =====");
+    }
+}
+--------------------------------------------------------------------------------------------------------------------------------------------
+файл application.yml:
+
+# Параметры приложения
+some:
+  config:
+    key1: some-value-from-yml1
+    key2: some-value-from-yml2
+    key3: some-value-from-yml3
+    key4: some-value-from-yml4
+    key5: some-value-from-yml5
+
+# Краткое наименование топиков
+topics:
+  topic1: topic-test-1
+  topic2: topic-test-2
+  topic3: topic-test-3
+  topic4: topic-test-4
+
+spring:
+  profiles:
+    active: test
+
+--------------------------------------------------------------------------------------------------------------------------------------------
+
+IDE в файле ApplyTaskManagerBase.java выдает сообщения об ошибках:
+Non-static field 'param' cannot be referenced from a static context 18
+Non-static field 'param' cannot be referenced from a static context 20
+
+хотя аннотации
+@SpringBootTest(classes = AppConfig.class)
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+должны были сделать класс не статическим
+
+Какие варианты есть устранить ошибку?

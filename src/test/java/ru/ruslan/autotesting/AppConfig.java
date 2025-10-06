@@ -1,11 +1,9 @@
 package ru.ruslan.autotesting;
 
 import org.springframework.context.annotation.Configuration;
-import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
-import org.springframework.context.annotation.Bean;
-import org.springframework.core.env.Environment;
+import org.springframework.context.annotation.Import;
 
 @Configuration
-@ConfigurationPropertiesScan
+@Import({Param.class})
 public class AppConfig {
 }

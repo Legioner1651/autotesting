@@ -7,30 +7,18 @@ import org.springframework.stereotype.Component;
 @Component
 public class Param {
 
-    private static volatile Environment environment;
+    private final Environment environment;
 
     @Autowired
-    public void setEnvironment(Environment env) {
-        if (environment == null) { // Инициализация однократно
-            synchronized (this.getClass()) {
-                if (environment == null)
-                    environment = env;
-            }
-        }
+    public Param(Environment environment) {
+        this.environment = environment;
     }
 
-    /**
-     * Получение значения параметра из конфигурационного файла application.yml
-     */
-    public static String getProperty(String propertyName) {
-//        return environment.getProperty(propertyName);
-        return "--- Заглушка для метода getProperty() ---";
+    public String getProperty(String propertyName) {
+        return environment.getProperty(propertyName);
     }
 
-    /**
-     * Получение значения переменной окружения по её имени
-     */
-    public static String getEnv(String variableName) {
-        return System.getenv(variableName); // Доступ к переменным окружения
+    public String getEnv(String variableName) {
+        return System.getenv(variableName);
     }
 }
