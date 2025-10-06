@@ -1,8 +1,8 @@
 package ru.ruslan.autotesting;
 
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 
-class ApplyTaskManagerTest {
+public class ApplyTaskManagerTest {
 
     @Test
     void testPropertiesAndEnvironment() {
