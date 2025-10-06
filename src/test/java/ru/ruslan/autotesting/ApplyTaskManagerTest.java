@@ -24,6 +24,7 @@ public class ApplyTaskManagerTest extends ApplyTaskManagerBase {
 
     @Test
     public void testMessageFlowAndDBQuery() throws SQLException, ExecutionException, InterruptedException {
+        System.out.println("===== Start @Test =====");
         String testYML = paramInstance.getProperty("topics.topic1");
         System.out.println("testYML = \"" + testYML + "\"");
 
@@ -72,5 +73,6 @@ public class ApplyTaskManagerTest extends ApplyTaskManagerBase {
         // Читаем значение параметра из application.yml
         String configValue = readConfigValueFromYML();
         log.info("Config value from YAML file is: {}", configValue); // выводим значение параметра
+        System.out.println("===== End @Test =====");
     }
 }
