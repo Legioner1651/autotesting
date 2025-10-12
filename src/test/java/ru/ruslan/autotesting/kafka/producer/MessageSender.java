@@ -1,5 +1,4 @@
 package ru.ruslan.autotesting.kafka.producer;
-package ru.sberbank.sberuser.surms.test.integration.apply.taskmanager.kafka.producer;
 
 import io.qameta.allure.Allure;
 import io.qameta.allure.Step;
