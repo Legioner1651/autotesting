@@ -1,0 +1,96 @@
+на Java, используя библиотеки org.apache.kafka создать продюсера,
+передающего сообщения с типом key = тип Long, value = с типом JSON.
+нужно создать отдельные классы:
+1) SendMessages - отправляет key и value произвольного типа данных
+2) EqSD - класс создающий объект с типом JSON
+3) KafkaTest - тестовый класс который передает сообщение в топик: testing-topic
+
+
+На Java описать два класса:
+
+класс ValueMessageForKafka
+Long id,
+String surname,
+String name,
+String patronymic,
+Instant instant,
+LocalDateTime localDateTime,
+ZonedDateTime zdt,
+NewTypeObject newTypeObject,
+
+
+класс NewTypeObject содержит:
+Long id,
+String name,
+поле jsonObject
+пример значения jsonObject:
+{
+  "catalogs": [
+    {
+      "conditions": "Предложения действительны для Москвы, Переславль-Залесского и Костромской области. Информацию об ассортименте товаров, участвующих в акции, уточняйте в магазине. Количество товаров ограничено, не является публичной офертой.",
+      "date_end": "2020-06-12",
+      "date_start": "2020-06-05",
+      "id": "1234",
+      "image": "https://retailer1234.ru/catalogs/1234.jpg",
+      "is_main": true,
+      "offers": [
+        "11111",
+        "22222",
+        "33333"
+      ],
+      "target_regions": [
+        "Россия, Москва",
+        "Россия, Ярославская область, Переславль-Залесский",
+        "Россия, Костромская область, Островский район, село Адищево"
+      ]
+    },
+    {
+      "conditions": "Предложения действительны в магазине по адресу: Владимир, улица Куйбышева, 26К",
+      "date_end": "2020-06-12",
+      "date_start": "2020-06-05",
+      "id": "5678",
+      "image": "https://retailer1234.ru/catalogs/1234.jpg",
+      "is_main": true,
+      "offers": [
+        "22222",
+        "33333"
+      ],
+      "target_shops": [
+        "Владимир, улица Куйбышева, 26К"
+      ]
+    }
+  ],
+  "offers": [
+    {
+      "barcode": "7501031311309",
+      "date_end": "2020-06-10",
+      "date_start": "2020-06-05",
+      "description": "Молоко \"Домик в деревне\" 3,2% 0,93 л",
+      "discount_label": "1+1",
+      "id": "11111",
+      "image": "https://retailer1234.ru/offers/1234567.jpg",
+      "price_is_from": false,
+      "price_new": 50,
+      "price_old": 100
+    },
+    {
+      "barcode": "3113097501031"
+      "description": "Огурцы маринованные \"Дядя Ваня\" 680 г",
+      "id": "22222",
+      "image": "https://retailer1234.ru/offers/5671234.jpg",
+      "price_is_from": false,
+      "price_new": 70,
+      "price_old": 75
+    },
+    {
+      "barcode": "1097501031133",
+      "description": "Жевательная резинка Orbit в ассортименте",
+      "id": "33333",
+      "image": "https://retailer1234.ru/offers/10488.jpg",
+      "price_is_from": true,
+      "price_new": 10
+    }
+  ],
+  "version": 2
+}
+
