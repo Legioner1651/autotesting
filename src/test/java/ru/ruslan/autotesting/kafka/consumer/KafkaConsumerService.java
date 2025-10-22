@@ -3,14 +3,16 @@ package ru.ruslan.autotesting.kafka.consumer;
 import io.qameta.allure.Allure;
 import io.qameta.allure.Step;
 import io.qameta.allure.model.StatusDetails;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
-import java.util.Collections;
-import java.util.Properties;
+
+import java.util.*;
 import java.time.Duration;
 import java.util.concurrent.CompletableFuture;
 
+@Slf4j
 public class KafkaConsumerService {
 
     private final Properties consumerProps;
@@ -20,26 +22,43 @@ public class KafkaConsumerService {
     }
 
     @Step("Получение сообщения из топика {topic}")
-    public <K, V> CompletableFuture<ConsumerRecord<K, V>> consumeMessage(String topic) {
-        CompletableFuture<ConsumerRecord<K, V>> future = new CompletableFuture<>();
+    public <K, V> List<Map.Entry<K, V>> ConsumerAllRecords(String topic) {
+//        CompletableFuture<ConsumerRecord<K, V>> future = new CompletableFuture<>();
+
+        List<Map.Entry<K, V>> recordList = new ArrayList<>();
 
         try (KafkaConsumer<K, V> consumer = new KafkaConsumer<>(consumerProps)) {
             consumer.subscribe(Collections.singletonList(topic));
 
-            while (!future.isDone()) {
+            boolean hasMoreMessages = true;
+
+            while (hasMoreMessages) {
                 ConsumerRecords<K, V> records = consumer.poll(Duration.ofMillis(100)); // Опрашиваем каждые 100 мс
 
+                log.info("records.count() = {}", records.count());
+                log.info("- 5 -");
+
                 for (ConsumerRecord<K, V> record : records) {
-                    future.complete(record); // Завершаем выполнение с результатом
+                    K key = record.key();
+                    V value = record.value();
+
+                    recordList.add(Map.entry(key, value));
+                    log.info("ConsumerAllRecords Key:Value = {} : {}", key, value);
 
                     Allure.getLifecycle().updateStep(stepResult ->
                             stepResult.setStatusDetails(new StatusDetails().setMessage(record.toString()))
                     );
+                    log.info("- 4 -");
                 }
+                log.info("- 3 -");
+                hasMoreMessages = !records.isEmpty();
             }
+            log.info("- 2 -");
         }
 
-        return future;
+        log.info("- 1 -");
+//        return future;
+        return recordList;
     }
 }
 
