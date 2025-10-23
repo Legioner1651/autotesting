@@ -13,6 +13,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.KafkaContainer;
 import org.testcontainers.containers.Network;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -38,6 +39,8 @@ public class ApplyTaskManagerBase extends AbstractGeneral {
 
     protected static final String ALIAS_CONTAINER_KAFKA = "kafkaAlias";
     protected static final DockerImageName KAFKA_IMAGE = DockerImageName.parse("confluentinc/cp-kafka:7.4.0");
+    protected static final DockerImageName KAFKA_UI_IMAGE = DockerImageName.parse("provectuslabs/kafka-ui:v0.7.2");
+//    protected static final String ALIAS_CONTAINER_KAFKA = "kafkaAlias";
 
     protected static final Network network = Network.newNetwork();
     protected static final ZoneId localTimeZone = ZoneId.systemDefault();
@@ -48,8 +51,15 @@ public class ApplyTaskManagerBase extends AbstractGeneral {
 
     protected static ConfluentKafkaContainer containerKafka = new ConfluentKafkaContainer(KAFKA_IMAGE)
             .withNetwork(network)
+            .withNetworkAliases()
             .withEnv("TZ", localTimeZone.toString())
             .withStartupTimeout(Duration.ofMinutes(5));
+
+    protected static GenericContainer containerKafkaUI = new GenericContainer(KAFKA_UI_IMAGE)
+            .withNetwork(network)
+            .dependsOn(containerKafka)
+            .withEnv("TZ", localTimeZone.toString())
+            .withEnv("KAFKA_BOOTSTRAP_SERVER", ALIAS_CONTAINER_KAFKA + ":9092");
 
     @BeforeAll
     public void beforeAll() {

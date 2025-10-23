@@ -1,5 +1,6 @@
 package ru.ruslan.autotesting;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.admin.AdminClient;
 import org.apache.kafka.clients.admin.AdminClientConfig;
@@ -14,14 +15,18 @@ import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.testcontainers.shaded.org.awaitility.Awaitility;
 import ru.ruslan.autotesting.kafka.KafkaJsonDeserializer;
+import ru.ruslan.autotesting.kafka.KafkaJsonSerializer;
+import ru.ruslan.autotesting.kafka.ObjectForKafka1;
 import ru.ruslan.autotesting.kafka.consumer.KafkaConsumerService;
 import ru.ruslan.autotesting.kafka.producer.MessageSender;
 
 import java.time.Duration;
+import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -57,8 +62,9 @@ public class ApplyTaskManagerTest extends ApplyTaskManagerBase {
         System.out.println("===== ----- *** Код метода beforeEach() завершился *** ----- =====");
     }
 
+    @Disabled
     @Test
-    void testPropertiesAndEnvironment1() throws ExecutionException, InterruptedException {
+    void test1() throws ExecutionException, InterruptedException {
         System.out.println("============================================= Start @Test 1 =============================================");
 
         topicName = "topicName_1";
@@ -99,8 +105,9 @@ public class ApplyTaskManagerTest extends ApplyTaskManagerBase {
         System.out.println("============================================= End @Test 1 =============================================");
     }
 
+    @Disabled
     @Test
-    void testPropertiesAndEnvironment2() throws ExecutionException, InterruptedException {
+    void test2() throws ExecutionException, InterruptedException {
         System.out.println("============================================= Start @Test 2 =============================================");
 
         topicName = "topicName_2";
@@ -139,5 +146,51 @@ public class ApplyTaskManagerTest extends ApplyTaskManagerBase {
         });
 
         System.out.println("============================================= End @Test 2 =============================================");
+    }
+
+    @Test
+    void test3() throws ExecutionException, InterruptedException {
+        System.out.println("============================================= Start @Test 3 =============================================");
+
+        topicName = "topicName_3";
+
+        log.info("============================================= Этап 1 =============================================");
+
+        /* ********** Отправка сообщения в Кафку ********** */
+        kafkaProps.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, LongSerializer.class.getName());
+        kafkaProps.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, KafkaJsonSerializer.class.getName());
+
+        log.info("Значение kafkaProps = {}", kafkaProps);
+
+        MessageSender messageSender = new MessageSender(kafkaProps);
+
+        log.info("Значение messageSender = {}", messageSender);
+
+        /* Подготовка объекта для отправки в сообщении */
+        Instant timeNow = Instant.now();
+        ObjectForKafka1 objectForKafka3 = new ObjectForKafka1(715,"успешно", "Запись успешно добавлена", "ЗНО6877846475", timeNow);
+
+        var send = messageSender.sendMessage(topicName, 3L, objectForKafka3);
+        log.info("Отправка сообщения в Кафку, результат = {}", send);
+
+//        Awaitility.await().pollDelay(Duration.ofMinutes(2)).timeout(Duration.ofMinutes(3));
+
+        log.info("============================================= Этап 2 =============================================");
+
+        /* ********** Получение сообщений из Кафки ********** */
+//        kafkaProps.put(ConsumerConfig.GROUP_ID_CONFIG, "topic_groupId");
+//        kafkaProps.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, LongDeserializer.class.getName());
+//        kafkaProps.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, KafkaJsonDeserializer<>(JsonNode.class).getClass().getName());
+//        kafkaProps.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
+//
+//        KafkaConsumerService kafkaConsumerService = new KafkaConsumerService(kafkaProps);
+//
+//        List<Map.Entry<Object, Object>> allRecords = kafkaConsumerService.ConsumerAllRecords(topicName);
+//
+//        allRecords.forEach(entry -> {
+//            System.out.println("Ключ: " + entry.getKey() + ", Значение: " + entry.getValue());
+//        });
+
+        System.out.println("============================================= End @Test 3 =============================================");
     }
 }
