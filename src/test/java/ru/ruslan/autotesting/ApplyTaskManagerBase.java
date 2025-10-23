@@ -8,6 +8,7 @@ import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.LongSerializer;
 import org.apache.kafka.common.serialization.StringSerializer;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.slf4j.Logger;
@@ -44,6 +45,7 @@ public class ApplyTaskManagerBase extends AbstractGeneral {
 
     protected static final Network network = Network.newNetwork();
     protected static final ZoneId localTimeZone = ZoneId.systemDefault();
+    protected static final boolean usageUI = true;
 
     protected static String bootstrapServersKafka;
     protected Properties kafkaProps;
@@ -59,7 +61,9 @@ public class ApplyTaskManagerBase extends AbstractGeneral {
             .withNetwork(network)
             .dependsOn(containerKafka)
             .withEnv("TZ", localTimeZone.toString())
-            .withEnv("KAFKA_BOOTSTRAP_SERVER", ALIAS_CONTAINER_KAFKA + ":9092");
+//            .withExposedPorts(8082)
+//            .withEnv("KAFKA_BOOTSTRAP_SERVER", ALIAS_CONTAINER_KAFKA + ":9092");
+            .withEnv("DYNAMIC_CONFIG_ENABLED", "true");
 
     @BeforeAll
     public void beforeAll() {
@@ -67,12 +71,18 @@ public class ApplyTaskManagerBase extends AbstractGeneral {
 
         log.info("Start of containerKafka");
         containerKafka.start();
-        log.info("End of containerKafka");
+        log.info("The containerKafka has already started");
 
         bootstrapServersKafka = containerKafka.getBootstrapServers();
 
         log.info("localTimeZone = \"{}\"", localTimeZone);
         log.info("bootstrapServersKafka = \"{}\"", bootstrapServersKafka);
+
+        if (usageUI == true) {
+            log.info("Start of containerKafkaUI");
+            containerKafkaUI.start();
+            log.info("The containerKafkaUI has already started");
+        }
 
         kafkaProps = new Properties();
         kafkaProps.put(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServersKafka);
@@ -115,6 +125,19 @@ public class ApplyTaskManagerBase extends AbstractGeneral {
 //        KafkaConsumerService kafkaConsumerService = new KafkaConsumerService(kafkaProps);
 
         System.out.println("===== ===== ===== Код метода beforeEach() Base завершился ===== ===== =====");
+    }
+
+    @AfterAll
+    public void afterAll() {
+        if (usageUI == true) {
+            log.info("Stop of containerKafkaUI");
+            containerKafkaUI.stop();
+            log.info("The containerKafkaUI has already stopped");
+        }
+
+        log.info("Stop of containerKafka");
+        containerKafka.stop();
+        log.info("The containerKafka has already stopped");
     }
 
 

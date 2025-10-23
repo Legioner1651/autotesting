@@ -1,13 +1,7 @@
 package ru.ruslan.autotesting;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.kafka.clients.admin.AdminClient;
-import org.apache.kafka.clients.admin.AdminClientConfig;
-import org.apache.kafka.clients.admin.CreateTopicsResult;
-import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
-import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.LongDeserializer;
 import org.apache.kafka.common.serialization.LongSerializer;
@@ -15,20 +9,15 @@ import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.testcontainers.shaded.org.awaitility.Awaitility;
-import ru.ruslan.autotesting.kafka.KafkaJsonDeserializer;
 import ru.ruslan.autotesting.kafka.KafkaJsonSerializer;
-import ru.ruslan.autotesting.kafka.ObjectForKafka1;
+import ru.ruslan.autotesting.kafka.Object1ForKafka;
 import ru.ruslan.autotesting.kafka.consumer.KafkaConsumerService;
 import ru.ruslan.autotesting.kafka.producer.MessageSender;
 
-import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
 @Slf4j
@@ -62,7 +51,7 @@ public class ApplyTaskManagerTest extends ApplyTaskManagerBase {
         System.out.println("===== ----- *** Код метода beforeEach() завершился *** ----- =====");
     }
 
-    @Disabled
+//    @Disabled
     @Test
     void test1() throws ExecutionException, InterruptedException {
         System.out.println("============================================= Start @Test 1 =============================================");
@@ -105,7 +94,7 @@ public class ApplyTaskManagerTest extends ApplyTaskManagerBase {
         System.out.println("============================================= End @Test 1 =============================================");
     }
 
-    @Disabled
+//    @Disabled
     @Test
     void test2() throws ExecutionException, InterruptedException {
         System.out.println("============================================= Start @Test 2 =============================================");
@@ -168,11 +157,12 @@ public class ApplyTaskManagerTest extends ApplyTaskManagerBase {
 
         /* Подготовка объекта для отправки в сообщении */
         Instant timeNow = Instant.now();
-        ObjectForKafka1 objectForKafka3 = new ObjectForKafka1(715,"успешно", "Запись успешно добавлена", "ЗНО6877846475", timeNow);
+        Object1ForKafka object1ForKafka3 = new Object1ForKafka(715,"успешно", "Запись успешно добавлена", "ЗНО6877846475", timeNow);
 
-        var send = messageSender.sendMessage(topicName, 3L, objectForKafka3);
+        var send = messageSender.sendMessage(topicName, 3L, object1ForKafka3);
         log.info("Отправка сообщения в Кафку, результат = {}", send);
 
+        log.info("object1ForKafka3 = {}", object1ForKafka3);
 //        Awaitility.await().pollDelay(Duration.ofMinutes(2)).timeout(Duration.ofMinutes(3));
 
         log.info("============================================= Этап 2 =============================================");

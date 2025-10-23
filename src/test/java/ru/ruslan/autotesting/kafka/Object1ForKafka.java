@@ -13,7 +13,7 @@ import java.time.Instant;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ObjectForKafka1 {
+public class Object1ForKafka {
     private long rowID;
     private String smResponse;
     private String commentSmResponse;
