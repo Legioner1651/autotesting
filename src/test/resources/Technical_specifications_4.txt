@@ -132,3 +132,158 @@ Non-static field 'param' cannot be referenced from a static context 20
 должны были сделать класс не статическим
 
 Какие варианты есть устранить ошибку?
+
+--------------------------------------------------------------------------------------------------------------------------------------------
+
+существует рабочий код запуска контейнера с кафкой без Zookeeper и Kraft:
+    protected static final DockerImageName KAFKA_IMAGE = DockerImageName.parse("confluentinc/cp-kafka:7.4.0");
+    protected static final Network network = Network.newNetwork();
+    protected static final String ALIAS_CONTAINER_KAFKA = "kafkaAlias";
+    protected static ConfluentKafkaContainer containerKafka = new ConfluentKafkaContainer(KAFKA_IMAGE)
+            .withNetwork(network)
+            .withNetworkAliases(ALIAS_CONTAINER_KAFKA)
+            .withEnv("TZ", localTimeZone.toString())
+            .withStartupTimeout(Duration.ofMinutes(5));
+
+    protected static final DockerImageName KAFKA_UI_IMAGE = DockerImageName.parse("provectuslabs/kafka-ui:v0.7.2");
+    protected static GenericContainer containerKafkaUI = new GenericContainer(KAFKA_UI_IMAGE)
+            .withNetwork(network)
+            .dependsOn(containerKafka);
+нужно его доработать, что бы контейнер с kafka-ui зап
+ущенный в контейнере в той-же сети докер мог подключаться к брокеру кафка
+
+
+
+--------------------------------------------------------------------------------------------------------------------------------------------
+    protected static ConfluentKafkaContainer containerKafka = new ConfluentKafkaContainer(KAFKA_IMAGE)
+            .withNetwork(network)
+            .withNetworkAliases(ALIAS_CONTAINER_KAFKA)
+            .withEnv("TZ", localTimeZone.toString())
+            .withStartupTimeout(Duration.ofMinutes(5));
+
+После запуска контейнер containerKafka имеет следующие свойства:
+
+[
+    {
+        "HostConfig": {
+            "Binds": [],
+            "ContainerIDFile": "",
+            "LogConfig": {
+                "Type": "json-file",
+                "Config": {}
+            },
+            "NetworkMode": "314e0e5524b54f18d8480225d91fb1ecae523b8b560b42fe9fef69682b2a5dc6",
+            "PortBindings": {
+                "9092/tcp": [
+                    {
+                        "HostIp": "0.0.0.0",
+                        "HostPort": "0"
+                    }
+                ]
+            },
+            "RestartPolicy": {
+                "Name": "no",
+                "MaximumRetryCount": 0
+            },
+
+        "Config": {
+            "Hostname": "af1880200eeb",
+            "Domainname": "",
+            "User": "appuser",
+            "AttachStdin": false,
+            "AttachStdout": false,
+            "AttachStderr": false,
+            "ExposedPorts": {
+                "9092/tcp": {}
+            },
+            "Tty": false,
+            "OpenStdin": false,
+            "StdinOnce": false,
+            "Env": [
+                "KAFKA_CONTROLLER_QUORUM_VOTERS=1@localhost:9094",
+                "KAFKA_OFFSETS_TOPIC_NUM_PARTITIONS=1",
+                "TZ=Asia/Novosibirsk",
+                "KAFKA_CONTROLLER_LISTENER_NAMES=CONTROLLER",
+                "KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR=1",
+                "KAFKA_INTER_BROKER_LISTENER_NAME=BROKER",
+                "KAFKA_LOG_FLUSH_INTERVAL_MESSAGES=9223372036854775807",
+                "KAFKA_NODE_ID=1",
+                "KAFKA_TRANSACTION_STATE_LOG_MIN_ISR=1",
+                "KAFKA_LISTENERS=PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9094,BROKER://0.0.0.0:9093",
+                "KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR=1",
+                "CLUSTER_ID=4L6g3nShT-eMCtK--X86sw",
+                "KAFKA_PROCESS_ROLES=broker,controller",
+                "KAFKA_LISTENER_SECURITY_PROTOCOL_MAP=BROKER:PLAINTEXT,PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT",
+                "KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS=0",
+                "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+                "container=oci",
+                "LANG=C.UTF-8",
+                "CUB_CLASSPATH=\"/usr/share/java/cp-base-new/*\"",
+                "KAFKA_ZOOKEEPER_CONNECT=",
+                "KAFKA_ADVERTISED_LISTENERS=",
+                "COMPONENT=kafka"
+            ],
+            "Cmd": [
+                "sh",
+                "-c",
+                "while [ ! -f /tmp/testcontainers_start.sh ]; do sleep 0.1; done; /tmp/testcontainers_start.sh"
+            ],
+            "Image": "confluentinc/cp-kafka:7.4.0",
+            }
+        },
+        "NetworkSettings": {
+            "Bridge": "",
+            "SandboxID": "0cf5ecaba03ed0c5997065e81c9736cbef2aad6da9b1163c59aa451d25037ea8",
+            "SandboxKey": "/var/run/docker/netns/0cf5ecaba03e",
+            "Ports": {
+                "9092/tcp": [
+                    {
+                        "HostIp": "0.0.0.0",
+                        "HostPort": "62468"
+                    }
+                ]
+            },
+            "HairpinMode": false,
+            "LinkLocalIPv6Address": "",
+            "LinkLocalIPv6PrefixLen": 0,
+            "SecondaryIPAddresses": null,
+            "SecondaryIPv6Addresses": null,
+            "EndpointID": "",
+            "Gateway": "",
+            "GlobalIPv6Address": "",
+            "GlobalIPv6PrefixLen": 0,
+            "IPAddress": "",
+            "IPPrefixLen": 0,
+            "IPv6Gateway": "",
+            "MacAddress": "",
+            "Networks": {
+                "586b8d8e-4076-4b49-bc2b-f2d6e8b76529": {
+                    "IPAMConfig": null,
+                    "Links": null,
+                    "Aliases": [
+                        "tc-x3W4rWQH",
+                        "kafkaAlias"
+                    ],
+                    "MacAddress": "42:04:d0:59:13:df",
+                    "DriverOpts": null,
+                    "GwPriority": 0,
+                    "NetworkID": "314e0e5524b54f18d8480225d91fb1ecae523b8b560b42fe9fef69682b2a5dc6",
+                    "EndpointID": "a35eac4e6d381650b895d2fa1137a10f8fc8f2af1caf88eccfd70400079d47d9",
+                    "Gateway": "172.18.0.1",
+                    "IPAddress": "172.18.0.2",
+                    "IPPrefixLen": 16,
+                    "IPv6Gateway": "",
+                    "GlobalIPv6Address": "",
+                    "GlobalIPv6PrefixLen": 0,
+                    "DNSNames": [
+                        "exciting_hodgkin",
+                        "tc-x3W4rWQH",
+                        "kafkaAlias",
+                        "af1880200eeb"
+                    ]
+                }
+            }
+        }
+    }
+]
+как можно доработать контейнер чтобы к нему можно было бы подключиться по порту 9092 внутри сети докер

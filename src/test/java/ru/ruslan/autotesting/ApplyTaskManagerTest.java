@@ -7,6 +7,7 @@ import org.apache.kafka.common.serialization.LongDeserializer;
 import org.apache.kafka.common.serialization.LongSerializer;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
+import org.awaitility.Awaitility;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -16,6 +17,7 @@ import ru.ruslan.autotesting.kafka.Object1ForKafka;
 import ru.ruslan.autotesting.kafka.consumer.KafkaConsumerService;
 import ru.ruslan.autotesting.kafka.producer.MessageSender;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
@@ -73,7 +75,16 @@ public class ApplyTaskManagerTest extends ApplyTaskManagerBase {
         var send = messageSender.sendMessage(topicName, 1L, "Test message N 1, into Kafka");
         log.info("Отправка сообщения в Кафку, результат = {}", send);
 
+        if (usageUI == true) {
+            int mappedPort = containerKafkaUI.getFirstMappedPort();
+            String hostAddress = containerKafkaUI.getHost();
+            System.out.println("Доступ к Kafka-UI по адресу: " + hostAddress + ":" + mappedPort);
+        }
+
+        log.info("Beginning Duration.ofMinutes(5)");
 //        Awaitility.await().pollDelay(Duration.ofMinutes(2)).timeout(Duration.ofMinutes(3));
+        Thread.sleep(Duration.ofMinutes(1L));
+        log.info("Ending Duration.ofMinutes(5)");
 
         log.info("============================================= Этап 2 =============================================");
 

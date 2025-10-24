@@ -24,6 +24,8 @@ import ru.ruslan.autotesting.kafka.KafkaJsonDeserializer;
 import ru.ruslan.autotesting.kafka.consumer.KafkaConsumerService;
 import ru.ruslan.autotesting.kafka.producer.MessageSender;
 
+import java.io.IOException;
+import java.nio.file.Paths;
 import java.time.Duration;
 import java.time.ZoneId;
 import java.util.ArrayList;
@@ -45,25 +47,31 @@ public class ApplyTaskManagerBase extends AbstractGeneral {
 
     protected static final Network network = Network.newNetwork();
     protected static final ZoneId localTimeZone = ZoneId.systemDefault();
-    protected static final boolean usageUI = false;
+    protected static final boolean usageUI = true;
 
     protected static String bootstrapServersKafka;
     protected Properties kafkaProps;
     protected MessageSender messageSender;
 
     protected static ConfluentKafkaContainer containerKafka = new ConfluentKafkaContainer(KAFKA_IMAGE)
-            .withNetwork(network)
-            .withNetworkAliases()
-            .withEnv("TZ", localTimeZone.toString())
-            .withStartupTimeout(Duration.ofMinutes(5));
+            .withNetwork(network)                           // 4253
+            .withNetworkAliases(ALIAS_CONTAINER_KAFKA)      // 4253
+            .withEnv("TZ", localTimeZone.toString())        // 4253
+//            .withEnv("KAFKA_ADVERTISED_LISTENERS", "PLAINTEXT://kafkaAlias:9092")
+            .withStartupTimeout(Duration.ofMinutes(5));     // 4253
 
     protected static GenericContainer containerKafkaUI = new GenericContainer(KAFKA_UI_IMAGE)
             .withNetwork(network)
             .dependsOn(containerKafka)
             .withEnv("TZ", localTimeZone.toString())
-//            .withExposedPorts(8082)
-//            .withEnv("KAFKA_BOOTSTRAP_SERVER", ALIAS_CONTAINER_KAFKA + ":9092");
-            .withEnv("DYNAMIC_CONFIG_ENABLED", "true");
+            .withEnv("KAFKA_CLUSTERS_0_NAME", "LOCAL_0")                                        // use
+//            .withEnv("KAFKA_CLUSTERS_0_BOOTSTRAP_SERVERS", ALIAS_CONTAINER_KAFKA +":9092")      // use
+//            .withEnv("KAFKA_CLUSTERS_0_BOOTSTRAP_SERVERS", "kafkaAlias:9092")
+            .withEnv("KAFKA_CLUSTERS_0_BOOTSTRAP_SERVERS", "172.18.0.2:9092")
+            .withEnv("KAFKA_CLUSTERS_0_PROPERTIES_SECURITY_PROTOCOL", "PLAINTEXT")              // use
+//            .withEnv("KAFKA_CLUSTERS_0_PROPERTIES_SASL_MECHANISM", "PLAIN")
+            .withEnv("AUTH_TYPE", "DISABLED")                                                   // use
+            .withExposedPorts(8080);
 
     @BeforeAll
     public void beforeAll() {
@@ -81,6 +89,11 @@ public class ApplyTaskManagerBase extends AbstractGeneral {
         if (usageUI == true) {
             log.info("Start of containerKafkaUI");
             containerKafkaUI.start();
+
+            int mappedPort = containerKafkaUI.getFirstMappedPort();
+            String hostAddress = containerKafkaUI.getHost();
+            System.out.println("Доступ к Kafka-UI по адресу: " + hostAddress + ":" + mappedPort);
+
             log.info("The containerKafkaUI has already started");
         }
 
@@ -128,9 +141,16 @@ public class ApplyTaskManagerBase extends AbstractGeneral {
     }
 
     @AfterAll
-    public void afterAll() {
+    public void afterAll() throws IOException {
+        String fileName = String.format("LogKafka.log");
+        writeText2File(containerKafka.getLogs(), Paths.get("target/" + fileName));
+
         if (usageUI == true) {
             log.info("Stop of containerKafkaUI");
+
+            fileName = String.format("LogKafka_UI.log");
+            writeText2File(containerKafkaUI.getLogs(), Paths.get("target/" + fileName));
+
             containerKafkaUI.stop();
             log.info("The containerKafkaUI has already stopped");
         }

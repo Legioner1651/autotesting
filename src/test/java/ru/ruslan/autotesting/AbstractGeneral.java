@@ -2,12 +2,23 @@ package ru.ruslan.autotesting;
 
 // и не использовать аннотации, оставим класс абстрактным
 
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+
+@Slf4j
 @SpringBootTest(classes = AppConfig.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public abstract class AbstractGeneral {
+
+    public static void writeText2File(String text, Path path) throws IOException {
+        Files.writeString(Path.of(path.toUri()), text);
+        log.info("writeText2File: Файл успешно создан: " + path + "\"");
+    }
 
 //    public static void printSomeConfigKey() {
 //        String value = Param.getProperty("some.config.key3");
