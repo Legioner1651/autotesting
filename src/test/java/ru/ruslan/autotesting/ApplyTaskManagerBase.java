@@ -45,7 +45,7 @@ public class ApplyTaskManagerBase extends AbstractGeneral {
 
     protected static final Network network = Network.newNetwork();
     protected static final ZoneId localTimeZone = ZoneId.systemDefault();
-    protected static final boolean usageUI = true;
+    protected static final boolean usageUI = false;
 
     protected static String bootstrapServersKafka;
     protected Properties kafkaProps;
