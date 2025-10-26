@@ -76,14 +76,13 @@ public class ApplyTaskManagerTest extends ApplyTaskManagerBase {
         log.info("Отправка сообщения в Кафку, результат = {}", send);
 
         if (usageUI == true) {
-            int mappedPort = containerKafkaUI.getFirstMappedPort();
             String hostAddress = containerKafkaUI.getHost();
-            System.out.println("Доступ к Kafka-UI по адресу: " + hostAddress + ":" + mappedPort);
+            log.info("Доступ к Kafka-UI по адресу: {}:8080", hostAddress);
         }
 
         log.info("Beginning Duration.ofMinutes(5)");
 //        Awaitility.await().pollDelay(Duration.ofMinutes(2)).timeout(Duration.ofMinutes(3));
-        Thread.sleep(Duration.ofMinutes(1L));
+        Thread.sleep(Duration.ofMinutes(2L));
         log.info("Ending Duration.ofMinutes(5)");
 
         log.info("============================================= Этап 2 =============================================");

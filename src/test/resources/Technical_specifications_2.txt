@@ -47,3 +47,39 @@ spring:
 
 
 Классы GeneralMethods, ApplyTaskManagerBase и ApplyTaskManagerTest, не должны использовать аннотаций и библиотек Spring Boot и Spring
+
+------------------------------------------------------------------------------------------------------------------------------
+
+Проверить корректность кода:
+Нужно что бы контейнер containerKafka запустился,
+потом запустился контейнер containerKafkaUI и подключился к контейнеру containerKafka, и открыл порт для подключения браузером.
+
+    protected static final DockerImageName KAFKA_IMAGE = DockerImageName.parse("confluentinc/cp-kafka:7.4.0");
+    protected static final DockerImageName KAFKA_UI_IMAGE = DockerImageName.parse("provectuslabs/kafka-ui:v0.7.2");
+
+    protected static ConfluentKafkaContainer containerKafka = new ConfluentKafkaContainer(KAFKA_IMAGE)
+            .withNetwork(network)
+            .withNetworkAliases()
+            .withEnv("TZ", localTimeZone.toString())
+            .withStartupTimeout(Duration.ofMinutes(5));
+
+    protected static GenericContainer containerKafkaUI = new GenericContainer(KAFKA_UI_IMAGE)
+            .withNetwork(network)
+            .dependsOn(containerKafka)
+            .withEnv("TZ", localTimeZone.toString())
+            .withEnv("DYNAMIC_CONFIG_ENABLED", "true");
+
+containerKafka.start();
+containerKafkaUI.start();
+
+
+-------------------------------------------------------------------------------------------------------------------
+
+Запускаем контейнер с Кафкой
+protected static final DockerImageName KAFKA_IMAGE = DockerImageName.parse("confluentinc/cp-kafka:7.4.0");
+protected static ConfluentKafkaContainer containerKafka = new ConfluentKafkaContainer(KAFKA_IMAGE)
+        .withNetwork(network)
+        .dependsOn(containerKafka)
+        .withNetworkAliases(ALIAS_CONTAINER_KAFKA);
+containerKafka.start();
+как узнать порт bootstrap.servers для подключения к брокеру изнутри докер сети через алиас

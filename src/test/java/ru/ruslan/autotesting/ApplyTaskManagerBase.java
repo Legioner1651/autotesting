@@ -41,7 +41,7 @@ public class ApplyTaskManagerBase extends AbstractGeneral {
     private Param param;
 
     protected static final String ALIAS_CONTAINER_KAFKA = "kafkaAlias";
-    protected static final DockerImageName KAFKA_IMAGE = DockerImageName.parse("confluentinc/cp-kafka:7.4.0");
+    protected static final DockerImageName KAFKA_IMAGE = DockerImageName.parse("confluentinc/cp-kafka:8.1.0");
     protected static final DockerImageName KAFKA_UI_IMAGE = DockerImageName.parse("provectuslabs/kafka-ui:v0.7.2");
 //    protected static final String ALIAS_CONTAINER_KAFKA = "kafkaAlias";
 
@@ -49,29 +49,25 @@ public class ApplyTaskManagerBase extends AbstractGeneral {
     protected static final ZoneId localTimeZone = ZoneId.systemDefault();
     protected static final boolean usageUI = true;
 
-    protected static String bootstrapServersKafka;
+    protected static String bootstrapServersKafka = "localhost:9092";
     protected Properties kafkaProps;
     protected MessageSender messageSender;
 
     protected static ConfluentKafkaContainer containerKafka = new ConfluentKafkaContainer(KAFKA_IMAGE)
-            .withNetwork(network)                           // 4253
-            .withNetworkAliases(ALIAS_CONTAINER_KAFKA)      // 4253
-            .withEnv("TZ", localTimeZone.toString())        // 4253
-//            .withEnv("KAFKA_ADVERTISED_LISTENERS", "PLAINTEXT://kafkaAlias:9092")
-            .withStartupTimeout(Duration.ofMinutes(5));     // 4253
+            .withNetwork(network)
+            .withNetworkAliases(ALIAS_CONTAINER_KAFKA)
+            .withEnv("TZ", localTimeZone.toString())
+            .withStartupTimeout(Duration.ofMinutes(5));
 
     protected static GenericContainer containerKafkaUI = new GenericContainer(KAFKA_UI_IMAGE)
-            .withNetwork(network)
+            .withNetworkMode("host")
             .dependsOn(containerKafka)
             .withEnv("TZ", localTimeZone.toString())
-            .withEnv("KAFKA_CLUSTERS_0_NAME", "LOCAL_0")                                        // use
-//            .withEnv("KAFKA_CLUSTERS_0_BOOTSTRAP_SERVERS", ALIAS_CONTAINER_KAFKA +":9092")      // use
-//            .withEnv("KAFKA_CLUSTERS_0_BOOTSTRAP_SERVERS", "kafkaAlias:9092")
-            .withEnv("KAFKA_CLUSTERS_0_BOOTSTRAP_SERVERS", "172.18.0.2:9092")
-            .withEnv("KAFKA_CLUSTERS_0_PROPERTIES_SECURITY_PROTOCOL", "PLAINTEXT")              // use
-//            .withEnv("KAFKA_CLUSTERS_0_PROPERTIES_SASL_MECHANISM", "PLAIN")
-            .withEnv("AUTH_TYPE", "DISABLED")                                                   // use
-            .withExposedPorts(8080);
+            .withEnv("KAFKA_CLUSTERS_0_NAME", "LOCAL_0")
+            .withEnv("KAFKA_CLUSTERS_0_BOOTSTRAP_SERVERS", bootstrapServersKafka)
+            .withEnv("KAFKA_CLUSTERS_0_PROPERTIES_SECURITY_PROTOCOL", "PLAINTEXT")
+            .withEnv("KAFKA_CLUSTERS_0_CLUSTERS_SECURITY_PROTOCOL", "PLAINTEXT")
+            .withEnv("AUTH_TYPE", "DISABLED");
 
     @BeforeAll
     public void beforeAll() {
@@ -86,14 +82,14 @@ public class ApplyTaskManagerBase extends AbstractGeneral {
         log.info("localTimeZone = \"{}\"", localTimeZone);
         log.info("bootstrapServersKafka = \"{}\"", bootstrapServersKafka);
 
+
         if (usageUI == true) {
             log.info("Start of containerKafkaUI");
+            containerKafkaUI.withEnv("KAFKA_CLUSTERS_0_BOOTSTRAP_SERVERS", bootstrapServersKafka);
             containerKafkaUI.start();
 
-            int mappedPort = containerKafkaUI.getFirstMappedPort();
             String hostAddress = containerKafkaUI.getHost();
-            System.out.println("Доступ к Kafka-UI по адресу: " + hostAddress + ":" + mappedPort);
-
+            log.info("Доступ к Kafka-UI по адресу: {}:8080", hostAddress);
             log.info("The containerKafkaUI has already started");
         }
 
