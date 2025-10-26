@@ -7,11 +7,12 @@ import org.apache.kafka.common.serialization.LongDeserializer;
 import org.apache.kafka.common.serialization.LongSerializer;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
-import org.awaitility.Awaitility;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import ru.ruslan.autotesting.kafka.KafkaJsonDeserializer;
 import ru.ruslan.autotesting.kafka.KafkaJsonSerializer;
 import ru.ruslan.autotesting.kafka.Object1ForKafka;
 import ru.ruslan.autotesting.kafka.consumer.KafkaConsumerService;
@@ -28,7 +29,6 @@ public class ApplyTaskManagerTest extends ApplyTaskManagerBase {
     @Autowired
     private Param param;
 
-//    protected Properties kafkaProps = new Properties();
 
     private String topicName;
 
@@ -80,10 +80,10 @@ public class ApplyTaskManagerTest extends ApplyTaskManagerBase {
             log.info("Доступ к Kafka-UI по адресу: {}:8080", hostAddress);
         }
 
-        log.info("Beginning Duration.ofMinutes(5)");
+        log.info("Beginning Duration.ofMinutes(5) test1");
 //        Awaitility.await().pollDelay(Duration.ofMinutes(2)).timeout(Duration.ofMinutes(3));
-        Thread.sleep(Duration.ofMinutes(2L));
-        log.info("Ending Duration.ofMinutes(5)");
+        Thread.sleep(Duration.ofMinutes(1L));
+        log.info("Ending Duration.ofMinutes(5) test1");
 
         log.info("============================================= Этап 2 =============================================");
 
@@ -126,7 +126,10 @@ public class ApplyTaskManagerTest extends ApplyTaskManagerBase {
         var send = messageSender.sendMessage(topicName, 1L, 54321L);
         log.info("Отправка сообщения в Кафку, результат = {}", send);
 
-//        Awaitility.await().pollDelay(Duration.ofMinutes(2)).timeout(Duration.ofMinutes(3));
+        log.info("Beginning Duration.ofMinutes(5) test2");
+        Thread.sleep(Duration.ofMinutes(1L));
+        log.info("Ending Duration.ofMinutes(5) test2");
+
 
         log.info("============================================= Этап 2 =============================================");
 
@@ -173,23 +176,32 @@ public class ApplyTaskManagerTest extends ApplyTaskManagerBase {
         log.info("Отправка сообщения в Кафку, результат = {}", send);
 
         log.info("object1ForKafka3 = {}", object1ForKafka3);
-//        Awaitility.await().pollDelay(Duration.ofMinutes(2)).timeout(Duration.ofMinutes(3));
+
+        log.info("Beginning Duration.ofMinutes(2) test3");
+        Thread.sleep(Duration.ofMinutes(1L));
+        log.info("Ending Duration.ofMinutes(2) test3");
+
 
         log.info("============================================= Этап 2 =============================================");
 
         /* ********** Получение сообщений из Кафки ********** */
-//        kafkaProps.put(ConsumerConfig.GROUP_ID_CONFIG, "topic_groupId");
-//        kafkaProps.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, LongDeserializer.class.getName());
-//        kafkaProps.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, KafkaJsonDeserializer<>(JsonNode.class).getClass().getName());
-//        kafkaProps.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
-//
-//        KafkaConsumerService kafkaConsumerService = new KafkaConsumerService(kafkaProps);
-//
-//        List<Map.Entry<Object, Object>> allRecords = kafkaConsumerService.ConsumerAllRecords(topicName);
-//
-//        allRecords.forEach(entry -> {
-//            System.out.println("Ключ: " + entry.getKey() + ", Значение: " + entry.getValue());
-//        });
+        kafkaProps.put(ConsumerConfig.GROUP_ID_CONFIG, "topic_groupId");
+        kafkaProps.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, LongDeserializer.class.getName());
+        kafkaProps.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, KafkaJsonDeserializer.class.getName());
+        kafkaProps.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
+        kafkaProps.put("value.deserializer.type", "ru.ruslan.autotesting.kafka.Object1ForKafka");
+
+        KafkaConsumerService kafkaConsumerService = new KafkaConsumerService(kafkaProps);
+
+        List<Map.Entry<Object, Object>> allRecords = kafkaConsumerService.ConsumerAllRecords(topicName);
+
+        allRecords.forEach(entry -> {
+            System.out.println("Ключ: " + entry.getKey() + ", Значение: " + entry.getValue());
+        });
+
+        log.info("Beginning Duration.ofMinutes(10)");
+        Thread.sleep(Duration.ofMinutes(1L));
+        log.info("Ending Duration.ofMinutes(10)");
 
         System.out.println("============================================= End @Test 3 =============================================");
     }
