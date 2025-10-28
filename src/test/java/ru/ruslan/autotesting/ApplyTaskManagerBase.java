@@ -1,5 +1,8 @@
 package ru.ruslan.autotesting;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.apache.kafka.clients.admin.AdminClient;
 import org.apache.kafka.clients.admin.AdminClientConfig;
 import org.apache.kafka.clients.admin.CreateTopicsResult;
@@ -28,10 +31,7 @@ import java.io.IOException;
 import java.nio.file.Paths;
 import java.time.Duration;
 import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 
 @Testcontainers
 public class ApplyTaskManagerBase extends AbstractGeneral {
@@ -165,5 +165,18 @@ public class ApplyTaskManagerBase extends AbstractGeneral {
     public void printEnvLC_MONETARY() {
         String env = param.getEnv("LC_MONETARY");
         System.out.println("LC_MONETARY: " + env);
+    }
+
+    public static JsonNode convertListMapEntryToJsonNode(List<Map.Entry<String, JsonNode>> entries) {
+        ObjectMapper mapper = new ObjectMapper();
+        ObjectNode result = mapper.createObjectNode();
+
+        for (Map.Entry<String, JsonNode> entry : entries) {
+            if (entry.getKey() != null && entry.getValue() != null) {
+                result.set(entry.getKey(), entry.getValue());
+            }
+        }
+
+        return result;
     }
 }
