@@ -279,3 +279,32 @@ Collections.shuffle(numbers); // Перемешивание
 Collections.max(numbers); // Максимальный элемент
 
 -----------------------------------------------------------------------------------------------------------------------------
+задача со звездочкой по Stream
+
+    static class IClass {
+
+        public void exec() {
+            System.out.println("Item!");
+        }
+    }
+
+...
+
+        Set<Runnable> sourceList = new HashSet<>();
+        IClass item = new IClass();
+
+        sourceList.add(item::exec);
+        sourceList.add(null);
+        sourceList.add(item::exec);
+        sourceList.add(item::exec);
+
+        for( Runnable element: sourceList ) {
+            if (element != null) {
+                element.run();
+                sourceList.remove(element);
+            }
+        }
+
+        System.out.println( sourceList.size() );
+
+-----------------------------------------------------------------------------------------------------------------------------
