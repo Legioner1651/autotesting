@@ -249,3 +249,33 @@
     Стратегия (Strategy) — определяет семейство алгоритмов, инкапсулирует каждый из них и делает их взаимозаменяемыми. Позволяет изменять алгоритмы независимо от клиентов, которые ими пользуются.
     Шаблонный метод (Template Method) — определяет скелет алгоритма в методе, оставляя определение реализации некоторых шагов подклассам. Подклассы могут переопределять некоторые шаги алгоритма, не меняя его структуры.
     Посетитель (Visitor) — представляет операцию, выполняемую на элементах структуры объектов. Позволяет определить новую операцию без изменения классов элементов, над которыми она выполняется.
+
+-----------------------------------------------------------------------------------------------------------------------------
+
+Иерархия коллекций
+
+Interfaces:
+Collection (базовый интерфейс)                              Collection<String> collection = new ArrayList<>(); collection.add("Python"); collection.remove("Python");
+
+|-- List (упорядоченный список)                             List<String> list = new ArrayList<>(); list.add("Apple"); list.add(1, "Orange"); // Добавление по индексу
+   |-- ArrayList (динамический массив)                      ArrayList<String> arrayList = new ArrayList<>(); arrayList.add("Москва"), arrayList.get(0)
+   |-- LinkedList (двусвязный список)                       LinkedList<Integer> linkedList = new LinkedList<>(); linkedList.addFirst(1); linkedList.addLast(2);
+
+|-- Set (неупорядоченное множество уникальных элементов)    Set<Integer> set = new HashSet<>(); set.add(2);
+   |-- HashSet (хеш-множество)                              HashSet<String> hashSet = new HashSet<>(); hashSet.add("Москва");
+   |-- TreeSet (отсортированное множество)                  TreeSet<Integer> treeSet = new TreeSet<>(); treeSet.add(5); treeSet.add(1); treeSet.first();
+|-- Queue (очередь)                                         Queue<String> queue = new LinkedList<>(); queue.offer("First"); queue.offer("Second"); queue.poll(); // Удаляет и возвращает "First"
+   |-- PriorityQueue (очередь с приоритетом)
+Map (ассоциативный контейнер ключ-значение):                Map<String, Integer> map = new HashMap<>(); map.put("Apple", 10); map.get("Apple"); // 10
+|-- HashMap (хэш-карта)                                     HashMap<String, Integer> hashMap = new HashMap<>(); hashMap.put("Москва", 10000000); hashMap.get("Москва");
+|-- TreeMap (отсортированная карта)                         TreeMap<String, String> treeMap = new TreeMap<>(); treeMap.put("Москва", "столица"); treeMap.firstKey();
+|-- LinkedHashMap (карта с сохранением порядка вставки)
+
+методы Collections:
+List<Integer> numbers = Arrays.asList(3, 1, 4, 1, 5);
+Collections.sort(numbers); // Сортировка
+Collections.reverse(numbers); // Реверс
+Collections.shuffle(numbers); // Перемешивание
+Collections.max(numbers); // Максимальный элемент
+
+-----------------------------------------------------------------------------------------------------------------------------
