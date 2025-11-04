@@ -1,0 +1,69 @@
+docker-compose.yml:
+
+version: '3.8'
+services:
+  kafka:
+    image: confluentinc/cp-kafka:7.4.0
+    container_name: kafka-broker
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka-broker:9092
+    networks:
+      - test-network
+    healthcheck:
+      test: ["CMD", "kafka-topics", "--bootstrap-server", "localhost:9092", "--list"]
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.4.0
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+
+  kafka-ui:
+    image: provectuslabs/kafka-ui:v0.7.2
+    container_name: kafka-ui
+    environment:
+      KAFKA_CLUSTERS_0_NAME: "test-cluster"
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: "kafka-broker:9092"
+    ports:
+      - "8080:8080"
+    networks:
+      - test-network
+    depends_on:
+      kafka:
+        condition: service_healthy
+
+networks:
+  test-network:
+    driver: bridge
+
+01:03:37.349 [main] INFO  o.t.utility.ImageNameSubstitutor - Image name substitution will be performed by: DefaultImageNameSubstitutor (composite of 'ConfigurationFileImageNameSubstitutor' and 'PrefixingImageNameSubstitutor')
+Exception in thread "main" java.lang.ExceptionInInitializerError
+	at java.base/java.lang.Class.forName0(Native Method)
+	at java.base/java.lang.Class.forName(Class.java:421)
+	at java.base/java.lang.Class.forName(Class.java:412)
+	at com.intellij.junit5.JUnit5TestRunnerUtil.loadMethodByReflection(JUnit5TestRunnerUtil.java:148)
+	at com.intellij.junit5.JUnit5TestRunnerUtil.buildRequest(JUnit5TestRunnerUtil.java:130)
+	at com.intellij.junit5.JUnit5IdeaTestRunner.startRunnerWithArgs(JUnit5IdeaTestRunner.java:43)
+	at com.intellij.rt.junit.IdeaTestRunner$Repeater$1.execute(IdeaTestRunner.java:38)
+	at com.intellij.rt.execution.junit.TestsRepeater.repeat(TestsRepeater.java:11)
+	at com.intellij.rt.junit.IdeaTestRunner$Repeater.startRunnerWithArgs(IdeaTestRunner.java:35)
+	at com.intellij.rt.junit.JUnitStarter.prepareStreamsAndStart(JUnitStarter.java:235)
+	at com.intellij.rt.junit.JUnitStarter.main(JUnitStarter.java:54)
+Caused by: java.lang.IllegalStateException: Compose file /home/ruslan/IdeaProjects/autotesting/docker-compose.yml has 'container_name' property set for service 'kafka' but this property is not supported by Testcontainers, consider removing it
+	at org.testcontainers.containers.ParsedDockerComposeFile.validateNoContainerNameSpecified(ParsedDockerComposeFile.java:135)
+	at org.testcontainers.containers.ParsedDockerComposeFile.parseAndValidate(ParsedDockerComposeFile.java:126)
+	at org.testcontainers.containers.ParsedDockerComposeFile.<init>(ParsedDockerComposeFile.java:67)
+	at java.base/java.util.stream.ReferencePipeline$3$1.accept(ReferencePipeline.java:197)
+	at java.base/java.util.Spliterators$ArraySpliterator.forEachRemaining(Spliterators.java:1024)
+	at java.base/java.util.stream.AbstractPipeline.copyInto(AbstractPipeline.java:509)
+	at java.base/java.util.stream.AbstractPipeline.wrapAndCopyInto(AbstractPipeline.java:499)
+	at java.base/java.util.stream.ReduceOps$ReduceOp.evaluateSequential(ReduceOps.java:921)
+	at java.base/java.util.stream.AbstractPipeline.evaluate(AbstractPipeline.java:234)
+	at java.base/java.util.stream.ReferencePipeline.collect(ReferencePipeline.java:682)
+	at org.testcontainers.containers.DockerComposeFiles.<init>(DockerComposeFiles.java:18)
+	at org.testcontainers.containers.ComposeDelegate.<init>(ComposeDelegate.java:91)
+	at org.testcontainers.containers.DockerComposeContainer.<init>(DockerComposeContainer.java:91)
+	at org.testcontainers.containers.DockerComposeContainer.<init>(DockerComposeContainer.java:83)
+	at org.testcontainers.containers.DockerComposeContainer.<init>(DockerComposeContainer.java:79)
+	at ru.ruslan.autotesting.ApplyTaskManagerBase.<clinit>(ApplyTaskManagerBase.java:47)
