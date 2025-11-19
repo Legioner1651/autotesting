@@ -1,0 +1,127 @@
+Инициализация и проверка подписки KafkaConsumer
+
+Современный подход (Kafka 2.5+)
+
+import java.time.Duration;
+import java.util.Collections;
+
+public class ModernKafkaConsumer {
+
+    public static void main(String[] args) {
+        Properties props = new Properties();
+        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
+        props.put(ConsumerConfig.GROUP_ID_CONFIG, "modern-group");
+        props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG,
+                  "org.apache.kafka.common.serialization.StringDeserializer");
+        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
+                  "org.apache.kafka.common.serialization.StringDeserializer");
+
+        try (KafkaConsumer<String, String> consumer = new KafkaConsumer<>(props)) {
+
+            // Подписка на один топик
+            consumer.subscribe(Collections.singletonList("my-topic"));
+
+            // Подтверждение подписки
+            if (confirmSubscription(consumer, "my-topic")) {
+                System.out.println("✅ Consumer готов к работе!");
+
+                // Основной цикл обработки
+                while (true) {
+                    ConsumerRecords<String, String> records = consumer.poll(Duration.ofMillis(1000));
+                    // Обработка записей...
+                }
+            }
+        }
+    }
+
+    private static boolean confirmSubscription(KafkaConsumer<String, String> consumer, String topic) {
+        try {
+            // Даем время на инициализацию подписки
+            consumer.poll(Duration.ofMillis(500));
+
+            Set<String> subscriptions = consumer.subscription();
+            boolean isSubscribed = subscriptions.contains(topic);
+
+            if (isSubscribed) {
+                System.out.println("Подтверждена подписка на: " + topic);
+                System.out.println("Все подписки: " + subscriptions);
+            }
+
+            return isSubscribed;
+
+        } catch (Exception e) {
+            System.err.println("Ошибка при подтверждении подписки: " + e.getMessage());
+            return false;
+        }
+    }
+}
+
+-----------------------------------------------------------------------------------------------------
+
+2. Более надежная проверка с обработкой колбэков
+
+import org.apache.kafka.clients.consumer.ConsumerRebalanceListener;
+import org.apache.kafka.common.TopicPartition;
+import java.util.Collection;
+
+public class ReliableKafkaConsumer {
+
+    public static void main(String[] args) {
+        Properties props = new Properties();
+        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
+        props.put(ConsumerConfig.GROUP_ID_CONFIG, "reliable-group");
+        props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG,
+                  "org.apache.kafka.common.serialization.StringDeserializer");
+        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
+                  "org.apache.kafka.common.serialization.StringDeserializer");
+
+        KafkaConsumer<String, String> consumer = new KafkaConsumer<>(props);
+
+        // Подписка с колбэком для отслеживания ребалансировки
+        consumer.subscribe(Arrays.asList("my-topic"), new ConsumerRebalanceListener() {
+            @Override
+            public void onPartitionsRevoked(Collection<TopicPartition> partitions) {
+                System.out.println("Партиции отозваны: " + partitions);
+            }
+
+            @Override
+            public void onPartitionsAssigned(Collection<TopicPartition> partitions) {
+                System.out.println("✅ Партиции назначены: " + partitions);
+                System.out.println("Подписка подтверждена!");
+            }
+        });
+
+        // Проверка подписки
+        verifySubscription(consumer);
+
+        // Работа с потребителем...
+        consumer.close();
+    }
+
+    private static void verifySubscription(KafkaConsumer<String, String> consumer) {
+        int maxRetries = 5;
+        int retryCount = 0;
+
+        while (retryCount < maxRetries) {
+            Set<String> subscribedTopics = consumer.subscription();
+
+            if (!subscribedTopics.isEmpty()) {
+                System.out.println("Подписка активна на топики: " + subscribedTopics);
+                return;
+            }
+
+            // Небольшая задержка и повторная попытка
+            try {
+                Thread.sleep(1000);
+                consumer.poll(100); // Помогает инициализировать подписку
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                break;
+            }
+
+            retryCount++;
+        }
+
+        System.out.println("⚠️ Не удалось подтвердить подписку после " + maxRetries + " попыток");
+    }
+}
