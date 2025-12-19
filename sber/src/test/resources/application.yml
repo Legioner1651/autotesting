@@ -1,0 +1,109 @@
+logging:
+  level:
+    root: info
+
+spring:
+  datasource:
+    url: jdbc:postgresql://tkldd-surms0001.delta.sbrf.ru:6544/surms
+    username: ${SURMS_DS_USER}
+    password: ${SURMS_DS_PASSWORD}
+    driverClassName: org.postgresql.Driver
+  liquibase:
+    parameters:
+      username: ${SURMS_DS_OWNER_USER}
+      password: ${SURMS_DS_OWNER_PASSWORD}
+  scim-provider:
+    username: ${SUDIR_SCIM_PROVIDER_USER}
+    password: ${SUDIR_SCIM_PROVIDER_PASSWORD}
+  data:
+    rest:
+      base-path: http://tvsds-surms0001.delta.sbrf.ru:34340
+
+  kafka:
+    bootstrap-servers: ALIAS_CONTAINER_KAFKA:9092
+    admin:
+      client-id: my-admin-client
+    consumer:
+      enable-auto-commit: false
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.LongDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.LongDeserializer
+      properties:
+        spring:
+          json:
+            trusted:
+              packages: '*'
+    properties:
+      topic-name-mapping:
+        eq-out: employee-queue-tasks
+        eq-in: employee-queue-task-acks
+        esq-sudir-out: employee-service-queue-sudir-tasks
+        esq-sudir-in: employee-service-queue-sudir-task-acks
+        apply-notification-out: apply-notification-tasks
+        apply-notification-in: apply-notification-task-acks
+        esq-esrt-out: employee-service-queue-sm-esrt-tasks
+        esq-esrt-in: employee-service-queue-sm-esrt-task-acks
+        post-apply-out: employee-post-apply-tasks
+        post-apply-in: employee-post-apply-tasks-acks
+        create-zno-out: service-manager-zno-create-tasks
+        create-zno-in: service-manager-zno-create-tasks-acks
+        create-sd-out: service-manager-sd-create-tasks
+        create-sd-in: service-manager-sd-create-tasks-acks
+        complete-zno-out: service-manager-zno-complete-tasks
+        complete-zno-in: service-manager-zno-complete-tasks-acks
+        deny-zno-out: service-manager-zno-deny-tasks
+        deny-zno-in: service-manager-zno-deny-tasks-acks
+        esq-sm-out: employee-service-queue-sm-tasks
+        esq-sm-in: employee-service-queue-sm-task-acks
+        esq-ad-out: employee-service-queue-ad-tasks
+        esq-ad-in: employee-service-queue-ad-task-acks
+        esq-idm-out: employee-service-queue-idm-tasks
+        esq-idm-in: employee-service-queue-idm-task-acks
+        esq-idm-result-in: employee-service-queue-idm-result
+      group-id-mapping:
+        eq-out: surms-apply-employeeprocessor
+        eq-in: surms-apply-taskmanager
+        esq-sudir-out: empty_2
+        esq-sudir-in: surms-apply-taskmanager
+        apply-notification-out: surms-apply-notificationMaker
+        apply-notification-in: surms-apply-taskmanager
+        esq-esrt-out: surms-apply-smtaskmaker
+        esq-esrt-in: surms-apply-taskmanager
+        post-apply-out: surms-apply-postapply
+        post-apply-in: surms-apply-taskmanager
+        create-zno-out: empty_6
+        create-zno-in: surms-apply-taskmanager
+        create-sd-out: surms-integration-sm
+        create-sd-in: surms-apply-taskmanager
+        complete-zno-out: empty_8
+        complete-zno-in: surms-apply-taskmanager
+        deny-zno-out: surms-integration-sm
+        deny-zno-in: surms-apply-taskmanager
+        esq-sm-out: surms-apply-smtaskmaker
+        esq-sm-in: surms-apply-taskmanager
+        esq-ad-out: surms-integration-dws
+        esq-ad-in: surms-apply-taskmanager
+        esq-idm-out: surms-integration-idm
+        esq-idm-in: surms-apply-taskmanager
+        esq-idm-result-in: surms-apply-taskmanager
+
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.LongSerializer
+      value-serializer: org.apache.kafka.common.serialization.LongSerializer
+      properties:
+        enable.idempotence: false
+    listener:
+      ack-mode: manual_immediate
+
+  cloud:
+    vault:
+      authentication: APPROLE
+      app-role:
+        role-id: ${role_id}
+        secret-id: ${secret_id}
+        role: AppRole
+      namespace: ${SECMAN_NS}
+      fail-fast: true
+      uri: ${SECMAN_URL}
+  config:
+    import: vault://${SECMAN_NS}${SECMAN_PATH}SURMS_DS, vault://${SECMAN_NS}${SECMAN_PATH}SUDIR_SCIM_PROVIDER
